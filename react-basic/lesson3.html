@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>React Array</title>
+    <style>
+      body{
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+      }
+
+      .send-button {
+        background-color: green;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        margin-left: 10px;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        cursor: pointer; /* 鼠标变成小手，表示这个按钮可以点击 */
+      }
+
+      .chat-input {
+        padding: 12px 15px;
+        border-radius: 10px;
+        border-width: 1px;
+        font-size: 15px;
+        flex-grow: 1;
+      }
+
+      .chat-input-container {
+        display: flex;
+        position: fixed; /* 固定在页面上，不跟着滚动 */
+        bottom: 0; /* 贴着底部 */
+        width: 600px; /* 跟 app-container 一样宽 */
+        background-color: white; /* 背景白色，不然消息会透过来 */
+        padding: 15px 0; /* 上下留点空间，好看一点 */
+      }
+
+      /* 每一层都是独立的：app-container 的 flex 控制ChatInput和 ChatMessages, chat-input-container 的 flex 控制<input> 和 <button>，user-message 的 flex 控制头像和消息文本。每一层的 flex 只管它自己里面的东西怎么排，不会影响到其他层！所以说，flex 就是一个局部的布局工具，你在哪用它，就只管你那一小块区域的布局！ */
+      .app-container {
+        max-width: 600px;
+        margin: 0 auto;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .robot-message {
+        display: flex;
+        align-items: start;
+      }
+
+      .user-message {
+        display: flex; /* 开启弹性布局，里面的东西可以灵活排列，默认横排。 */
+        justify-content: end; /* 横向排列,靠右对齐 */
+        align-items: start; /* 竖向对齐，靠上对齐。为什么不是 center？因为头像和消息文本的顶部对齐，看起来更舒服！ */
+      }
+
+      .chat-text{
+        background-color: rgb(238,238, 238);
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin: 0 10px 20px 10px;
+        max-width: 300px;
+      }
+
+      .avatar {
+        width: 50px;
+      }
+
+      /* Chrome、Firefox 用这个 */
+      .chat-messages-container {
+        flex-grow: 1; /* 占满剩余所有空间！ 没有父元素的 display:flex，这个没用！*/
+        margin-top: 20px;
+        overflow: scroll;
+        scrollbar-width: none; /* 把滚动条隐藏起来 */
+        padding-bottom: 80px; 
+      }
+
+      /* Safari 专用！*/
+      .chat-messages-container::-webkit-scrollbar {
+      display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="js-container"></div>
+
+    <script src="react.js"></script>
+    <script src="react-dom.js"></script>
+    <script src="chatbot.js"></script>
+    <script src="babel.js"></script>
+
+    <script type="text/babel">
+      // 用 setXXXX 来更新，React 才会知道要刷新, ...chatMessages 是什么？叫做展开符，意思是"把旧数组里所有东西复制过来"
+      function ChatInput({ chatMessages, setChatMessages }) {
+        const [inputText, setInputText] = React.useState('');
+        function saveInputText(event) {
+          setInputText(event.target.value); 
+          // setInputText - 替换成新的字符串
+          // 之前：inputText = "Hell"
+          // 之后：inputText = "Hello"
+        }
+        function sendMessage() {
+          // Step 1: 先把用户的消息加进去
+          const newChatMessages = [...chatMessages,
+            {
+              message: inputText,
+              sender: 'user',
+              id: crypto.randomUUID()
+            }
+          ]
+           // 页面更新，显示用户消息
+          setChatMessages(newChatMessages);
+           // Step 2: 拿机器人的回复
+          const response = Chatbot.getResponse(inputText);
+          // Step 3: 再把机器人回复加进去
+          // setChatMessages - 替换成新的数组
+          // 之前：chatMessages = [4条]
+          // 之后：chatMessages = [5条]
+          setChatMessages([...newChatMessages, {
+            message: response,
+            sender: 'robot',
+            id: crypto.randomUUID()
+          }]);
+          // Step 4: 清空输入框
+          setInputText('');
+        }
+        return (
+          <div className="chat-input-container">
+            <input placeholder="Type your message here..." onChange={saveInputText} value={inputText} className="chat-input" />
+            <button onClick={sendMessage} className="send-button">Send</button>
+          </div>
+        );
+      }
+
+// React.useRef 就是用来直接抓住一个 HTML 元素！那为什么不直接用 document.querySelector 呢？ 因为 React 是虚拟 DOM，直接操作 DOM 可能会和 React的更新机制冲突，导致不可预期的结果。用 useRef 可以安全地访问 DOM 元素。什么时候用 document.querySelector： 只有在 React 外面的代码才用！
+// useEffect 就是："当某样东西改变了，帮我做这件事", [chatMessages] 就是监视 chatMessages，它一变就触发。
+// 所以 if(container) 其实就是在问： "这个 ref 有没有成功对准一个 div？" 有 → 继续执行 | 没有 → 算了，跳过！
+ // scrollTop 是滚动条滚了多少（从顶部算），scrollHeight 是整个内容的高度。把 scrollTop 设置成 scrollHeight 就是强制滚到最底部。
+  // useState 就是一个仓库，专门存东西，数据变了页面自动刷新。useEffect 就是一个保安，监视某样东西，它一变就去做某件事。
+
+      function ChatMessages({ chatMessages }) {
+        const chatMessagesRef = React.useRef(null);
+        React.useEffect(() => {
+          const container = chatMessagesRef.current;
+          if(container){
+            container.scrollTop = container.scrollHeight;
+          }
+        }, [chatMessages]);
+        return (
+          <div className="chat-messages-container" ref={chatMessagesRef}>
+            {chatMessages.map((chatMessage) => {
+                return (
+                  <ChatMessage 
+                    message = {chatMessage.message}
+                    sender = {chatMessage.sender}
+                    key = {chatMessage.id}
+                    />
+                );
+              })}
+          </div>
+        );
+      }
+
+
+      function ChatMessage({ message, sender }) {
+        return (
+          <div className={sender === 'robot' ? 'robot-message' : 'user-message'}>
+            {sender === 'robot' && (<img src="robot.png" className="avatar"/>)}
+            <div className="chat-text">
+              {message}
+            </div>
+            {sender === 'user' && (<img src="user.png" className="avatar" />)}
+          </div>
+        );
+      }
+
+      // 用 useState 来存数据, const [当前的数据用来显示, 一个函数用来更新数据]
+      function App(){
+        const [chatMessages, setChatMessages] = React.useState([
+          { message: 'Hello', sender: 'user', id: '1' },
+          { message: 'Hello! How can I help you?', sender: 'robot', id: '2' },
+          { message: 'What is your name?', sender: 'user', id: '3' },
+          { message: 'My name is ChatGPT.', sender: 'robot', id: '4' }
+        ]);
+        return (
+          <div className="app-container">
+            <ChatInput chatMessages={chatMessages} setChatMessages={setChatMessages} />
+            <ChatMessages chatMessages={chatMessages}  />
+          </div>
+        );
+      }
+
+      
+      const container = document.querySelector('.js-container');
+      ReactDOM.createRoot(container).render(<App />);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+.robot-message {
+  display: flex;
+  align-items: start;
+}
+
+.user-message {
+  display: flex; /* 开启弹性布局，里面的东西可以灵活排列，默认横排。 */
+  justify-content: end; /* 横向排列,靠右对齐 */
+  align-items: start; /* 竖向对齐，靠上对齐。为什么不是 center？因为头像和消息文本的顶部对齐，看起来更舒服！ */
+}
+
+.chat-text {
+  background-color: rgb(238, 238, 238);
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin: 0 10px 20px 10px;
+  max-width: 300px;
+}
+
+.avatar {
+  width: 50px;
+}

@@ -1,0 +1,13 @@
+/* Chrome、Firefox 用这个 */
+.chat-messages-container {
+  flex-grow: 1; /* 占满剩余所有空间！ 没有父元素的 display:flex，这个没用！*/
+  margin-top: 20px;
+  overflow: scroll;
+  scrollbar-width: none; /* 把滚动条隐藏起来 */
+  padding-bottom: 80px;
+}
+
+/* Safari 专用！*/
+.chat-messages-container::-webkit-scrollbar {
+  display: none;
+}

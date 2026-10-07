@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+  <head>
+    <title>React Basics</title>
+  </head>
+  <body>
+    <div class="js-container"></div>
+
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+    <script type="text/babel">
+      // babel - transform JSX into JavaScript
+      const button = <button>Click me</button>;
+      const paragraph = <p>This is a paragraph</p>;
+      const div = (
+        <div>
+          {button} {paragraph}
+        </div>
+      );
+      const container = document.querySelector(".js-container");
+      ReactDOM.createRoot(container).render(div);
+      // createRoot - create a root element for React to render into, it takes a DOM element as an argument and returns a root object that has a render method.
+      // render - display something on the screen, it can be a string, a number, an array, an object, a component, etc.
+    </script>
+  </body>
+</html>

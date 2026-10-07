@@ -1,0 +1,28 @@
+.send-button {
+  background-color: green;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-left: 10px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer; /* 鼠标变成小手，表示这个按钮可以点击 */
+}
+
+.chat-input {
+  padding: 12px 15px;
+  border-radius: 10px;
+  border-width: 1px;
+  font-size: 15px;
+  flex-grow: 1;
+}
+
+.chat-input-container {
+  display: flex;
+  position: fixed; /* 固定在页面上，不跟着滚动 */
+  bottom: 0; /* 贴着底部 */
+  width: 600px; /* 跟 app-container 一样宽 */
+  background-color: white; /* 背景白色，不然消息会透过来 */
+  padding: 15px 0; /* 上下留点空间，好看一点 */
+}
